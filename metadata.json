@@ -1,0 +1,6 @@
+{
+  "name": "FinFlow Financial Hub",
+  "description": "Modern financial dashboard and account management integrated with Express.js API",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
