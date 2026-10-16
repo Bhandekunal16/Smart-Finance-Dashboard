@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
 import {
-  Settings as SettingsIcon,
   Server,
   RefreshCw,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   Eye,
   EyeOff,
   User,
-  ExternalLink,
-  ShieldAlert,
   Moon,
   Sun,
-  Laptop,
+  ShieldCheck,
 } from 'lucide-react';
 import { useApiConfig } from '../context/ApiConfigContext';
 import { useTheme } from '../context/ThemeContext';
@@ -22,37 +18,21 @@ import { useToast } from '../context/ToastContext';
 export const Settings: React.FC = () => {
   const {
     baseUrl,
-    setBaseUrl,
     activeUsername,
     setActiveUsername,
-    isSimulation,
-    setSimulation,
     isMasked,
     setIsMasked,
     healthStatus,
     healthMessage,
     healthLatency,
     checkHealth,
-    resetToDefaults,
   } = useApiConfig();
 
   const { theme, setTheme } = useTheme();
   const { showToast } = useToast();
 
-  const [customUrl, setCustomUrl] = useState(baseUrl);
   const [customUser, setCustomUser] = useState(activeUsername);
   const [checking, setChecking] = useState(false);
-
-  const handleSaveUrl = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customUrl.trim()) return;
-    setBaseUrl(customUrl.trim());
-    showToast({
-      type: 'success',
-      title: 'API Base URL Updated',
-      message: `Connecting to ${customUrl.trim()}`,
-    });
-  };
 
   const handleSaveUser = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,15 +62,15 @@ export const Settings: React.FC = () => {
       {/* Header */}
       <div>
         <h1 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
-          API Configuration & Preferences
+          API & System Settings
         </h1>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-          Configure Express.js backend targets, active profile, security masking, and UI theme
+          Backend server status, active profile context, security masking, and UI theme
         </p>
       </div>
 
-      {/* Backend Connection Card */}
-      <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-5">
+      {/* Backend Connection Card - Fixed without UI URL configuration */}
+      <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-4">
         <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -98,9 +78,9 @@ export const Settings: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                Express Backend Target
+                Connected Express Backend
               </h2>
-              <p className="text-xs text-slate-500">Central Axios client base URL</p>
+              <p className="text-xs text-slate-500 font-mono">{baseUrl}</p>
             </div>
           </div>
 
@@ -109,10 +89,10 @@ export const Settings: React.FC = () => {
             type="button"
             onClick={handleRunHealthCheck}
             disabled={checking}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${checking ? 'animate-spin' : ''}`} />
-            <span>Ping GET /</span>
+            <span>Ping Server (GET /)</span>
           </button>
         </div>
 
@@ -134,7 +114,7 @@ export const Settings: React.FC = () => {
             )}
             <div>
               <span className="font-semibold block">
-                {healthStatus === 'connected' ? 'Backend Online & Reachable' : 'Backend Unreachable'}
+                {healthStatus === 'connected' ? 'Backend Online & Reachable' : 'Backend Status'}
               </span>
               <span className="text-[11px] opacity-80">{healthMessage || 'Verifying connectivity...'}</span>
             </div>
@@ -146,103 +126,9 @@ export const Settings: React.FC = () => {
           )}
         </div>
 
-        {/* Quick URL Presets */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            Target Environment Presets
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setCustomUrl('http://localhost:4000');
-                setBaseUrl('http://localhost:4000');
-                setSimulation(false);
-              }}
-              className={`p-3 rounded-xl border text-left text-xs transition-all ${
-                baseUrl === 'http://localhost:4000' && !isSimulation
-                  ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-950/30 dark:border-blue-500'
-                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-              }`}
-            >
-              <span className="font-bold text-slate-900 dark:text-slate-100 block">
-                Direct Backend Port
-              </span>
-              <span className="font-mono text-slate-500 text-[11px] block mt-0.5">
-                http://localhost:4000
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setCustomUrl('http://localhost:8000');
-                setBaseUrl('http://localhost:8000');
-                setSimulation(false);
-              }}
-              className={`p-3 rounded-xl border text-left text-xs transition-all ${
-                baseUrl === 'http://localhost:8000' && !isSimulation
-                  ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-950/30 dark:border-blue-500'
-                  : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-              }`}
-            >
-              <span className="font-bold text-slate-900 dark:text-slate-100 block">
-                Reverse Proxy Port
-              </span>
-              <span className="font-mono text-slate-500 text-[11px] block mt-0.5">
-                http://localhost:8000
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Custom URL Form */}
-        <form onSubmit={handleSaveUrl} className="space-y-2">
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Custom Base URL
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="url"
-              value={customUrl}
-              onChange={(e) => setCustomUrl(e.target.value)}
-              placeholder="http://localhost:4000"
-              className="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono focus:bg-white dark:focus:bg-slate-850 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 text-xs font-semibold text-white bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 rounded-xl transition-colors whitespace-nowrap"
-            >
-              Update URL
-            </button>
-          </div>
-        </form>
-
-        {/* Demo Simulator Toggle */}
-        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <div>
-            <span className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              In-Browser Demo Simulator
-            </span>
-            <p className="text-[11px] text-slate-500">
-              Emulates all 12 Express endpoints in local storage when testing without a running backend
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setSimulation(!isSimulation)}
-            className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-              isSimulation ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-700'
-            }`}
-            aria-label="Toggle demo simulator"
-          >
-            <div
-              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                isSimulation ? 'translate-x-5' : 'translate-x-0'
-              }`}
-            />
-          </button>
+        <div className="text-xs text-slate-500 pt-1 flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-500" />
+          <span>Server endpoints are active in full read-write mode.</span>
         </div>
       </div>
 
@@ -257,7 +143,7 @@ export const Settings: React.FC = () => {
               Active User Context
             </h2>
             <p className="text-xs text-slate-500">
-              App queries and records transactions under this username
+              App queries and records transactions under this user handle
             </p>
           </div>
         </div>
@@ -282,21 +168,6 @@ export const Settings: React.FC = () => {
             Switch User
           </button>
         </form>
-
-        <div className="flex items-center gap-2 pt-1 text-xs">
-          <span className="text-slate-500">Suggested demo username:</span>
-          <button
-            type="button"
-            onClick={() => {
-              setCustomUser('asha');
-              setActiveUsername('asha');
-              window.dispatchEvent(new CustomEvent('finflow_data_mutated'));
-            }}
-            className="text-blue-600 dark:text-blue-400 hover:underline font-mono font-medium"
-          >
-            @asha (from API documentation)
-          </button>
-        </div>
       </div>
 
       {/* Security & Display Preferences */}
@@ -369,35 +240,15 @@ export const Settings: React.FC = () => {
             </button>
           </div>
         </div>
-
-        {/* Reset to Defaults */}
-        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-          <button
-            type="button"
-            onClick={() => {
-              resetToDefaults();
-              setCustomUrl('http://localhost:4000');
-              setCustomUser('asha');
-              showToast({
-                type: 'info',
-                title: 'Settings Reset',
-                message: 'Base URL and user reset to initial defaults.',
-              });
-            }}
-            className="px-3.5 py-1.5 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors font-medium"
-          >
-            Reset All to Defaults
-          </button>
-        </div>
       </div>
 
       {/* Express API Endpoint Spec Reference Table */}
       <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-3">
         <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-          Implemented API Endpoints Reference
+          Active API Endpoints Reference
         </h2>
         <p className="text-xs text-slate-500">
-          Mapped directly from <code>api(20261016-094625).md</code>
+          All endpoints execute against <code>{baseUrl}</code>
         </p>
 
         <div className="overflow-x-auto text-xs">

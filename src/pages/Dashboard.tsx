@@ -37,7 +37,7 @@ import { formatCurrency, formatDate, formatDateTime } from '../utils/formatters'
 import { User, Transaction, Budget, TransactionStatistics } from '../types';
 
 export const Dashboard: React.FC = () => {
-  const { activeUsername, baseUrl, isSimulation } = useApiConfig();
+  const { activeUsername, baseUrl } = useApiConfig();
   const { openAddTxn } = useOutletContext<{ openAddTxn: () => void }>();
 
   const [loading, setLoading] = useState(true);
@@ -171,14 +171,14 @@ export const Dashboard: React.FC = () => {
           <EmptyState
             icon={Building2}
             title={`No profile found for @${activeUsername}`}
-            description={`The backend responded that user "@${activeUsername}" does not exist in the database yet. Create a user profile or switch to another username.`}
+            description={`The backend responded that user "@${activeUsername}" does not exist in the database yet. Create a user profile or switch to another registered username.`}
             actionLabel="Create User Profile"
             onAction={() => {
               window.location.href = '#/accounts';
             }}
-            secondaryActionLabel="Try Demo Mode"
+            secondaryActionLabel="Sign In / Switch User"
             onSecondaryAction={() => {
-              window.location.href = '#/settings';
+              window.location.href = '#/login';
             }}
           />
         </div>

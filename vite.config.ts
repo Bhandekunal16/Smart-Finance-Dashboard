@@ -1,11 +1,30 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig} from 'vite';
+import { defineConfig, Plugin } from 'vite';
+import { handleApiRequest } from './src/api/serverHandler.ts';
+
+function apiBackendPlugin(): Plugin {
+  return {
+    name: 'api-backend-plugin',
+    configureServer(server) {
+      server.middlewares.use('/api', async (req, res, next) => {
+        try {
+          const handled = await handleApiRequest(req, res);
+          if (!handled) {
+            next();
+          }
+        } catch (err) {
+          next(err);
+        }
+      });
+    },
+  };
+}
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), apiBackendPlugin()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

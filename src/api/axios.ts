@@ -1,18 +1,19 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { ApiResponse } from '../types';
-import { mockDatabase } from './mockSimulator';
 
-// Retrieve default base URL from Vite env or fallback to local backend port 4000
-export const DEFAULT_API_BASE_URL =
-  (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:4000';
+export const BACKEND_SERVER_URL = 'http://147.224.251.137:8001';
 
-let currentBaseUrl = localStorage.getItem('finflow_api_base_url') || DEFAULT_API_BASE_URL;
-let useSimulationMode = localStorage.getItem('finflow_use_simulation') === 'true';
+// In browser environment, route through /api backend middleware
+export function resolveBaseUrl(): string {
+  return '/api';
+}
 
-// Create Central Axios Instance
+export const DEFAULT_API_BASE_URL = resolveBaseUrl();
+
+// Create Central Axios Instance configured to http://147.224.251.137:8001
 export const apiClient: AxiosInstance = axios.create({
-  baseURL: currentBaseUrl,
-  timeout: 8000,
+  baseURL: DEFAULT_API_BASE_URL,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -20,22 +21,7 @@ export const apiClient: AxiosInstance = axios.create({
 });
 
 export function getApiBaseUrl(): string {
-  return currentBaseUrl;
-}
-
-export function setApiBaseUrl(url: string): void {
-  currentBaseUrl = url.trim().replace(/\/$/, '');
-  apiClient.defaults.baseURL = currentBaseUrl;
-  localStorage.setItem('finflow_api_base_url', currentBaseUrl);
-}
-
-export function isSimulationMode(): boolean {
-  return useSimulationMode;
-}
-
-export function setSimulationMode(enabled: boolean): void {
-  useSimulationMode = enabled;
-  localStorage.setItem('finflow_use_simulation', enabled ? 'true' : 'false');
+  return BACKEND_SERVER_URL;
 }
 
 /**
@@ -126,7 +112,7 @@ export function parseError(error: any): ServiceResponse<any> {
     return {
       success: false,
       data: null,
-      message: `Unable to connect to backend at ${currentBaseUrl}. Check if server is running and CORS is enabled.`,
+      message: `Unable to connect to backend at ${BACKEND_SERVER_URL}. Check network route or firewall.`,
       statusCode: 0,
       raw: null,
     };
@@ -140,25 +126,11 @@ export function parseError(error: any): ServiceResponse<any> {
 }
 
 /**
- * Universal router that executes through the real backend API or local mock engine
+ * Universal router that executes directly against the real backend server
  */
 export async function executeRequest<T>(
-  action: () => Promise<AxiosResponse<ApiResponse<T>>>,
-  mockAction: () => ApiResponse<T>
+  action: () => Promise<AxiosResponse<ApiResponse<T>>>
 ): Promise<ServiceResponse<T>> {
-  if (useSimulationMode) {
-    // Simulated mode with slight delay for realistic UI loading states
-    await new Promise((r) => setTimeout(r, 180));
-    const mockRes = mockAction();
-    return parseResponse({
-      data: mockRes,
-      status: 200,
-      statusText: 'OK',
-      headers: {},
-      config: {} as any,
-    });
-  }
-
   try {
     const res = await action();
     return parseResponse<T>(res);

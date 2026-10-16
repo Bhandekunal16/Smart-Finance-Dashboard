@@ -1,18 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import {
-  getApiBaseUrl,
-  setApiBaseUrl as saveBaseUrl,
-  isSimulationMode,
-  setSimulationMode as saveSimulationMode,
-  DEFAULT_API_BASE_URL,
-} from '../api/axios';
+import { BACKEND_SERVER_URL } from '../api/axios';
 import { userApi } from '../api/userApi';
-
 import { User } from '../types';
 
 interface ApiConfigContextType {
   baseUrl: string;
-  setBaseUrl: (url: string) => void;
   activeUsername: string;
   setActiveUsername: (username: string) => void;
   currentUser: User | null;
@@ -20,8 +12,6 @@ interface ApiConfigContextType {
   login: (identifier: string, isMobile?: boolean) => Promise<{ success: boolean; message: string; user?: User }>;
   logout: () => void;
   refreshCurrentUser: () => Promise<void>;
-  isSimulation: boolean;
-  setSimulation: (enabled: boolean) => void;
   isMasked: boolean;
   setIsMasked: (masked: boolean) => void;
   toggleMasking: () => void;
@@ -29,13 +19,12 @@ interface ApiConfigContextType {
   healthMessage: string;
   healthLatency: number | null;
   checkHealth: () => Promise<void>;
-  resetToDefaults: () => void;
 }
 
 const ApiConfigContext = createContext<ApiConfigContextType | undefined>(undefined);
 
 export const ApiConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [baseUrl, setBaseUrlState] = useState<string>(() => getApiBaseUrl());
+  const baseUrl = BACKEND_SERVER_URL;
   const [activeUsername, setActiveUsernameState] = useState<string>(() => {
     return localStorage.getItem('finflow_active_user') || 'asha';
   });
@@ -43,7 +32,6 @@ export const ApiConfigProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return localStorage.getItem('finflow_logged_in') === 'true';
   });
-  const [isSimulation, setSimulationState] = useState<boolean>(() => isSimulationMode());
   const [isMasked, setIsMaskedState] = useState<boolean>(() => {
     const saved = localStorage.getItem('finflow_mask_accounts');
     return saved !== null ? saved === 'true' : true;
@@ -53,20 +41,10 @@ export const ApiConfigProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [healthMessage, setHealthMessage] = useState<string>('');
   const [healthLatency, setHealthLatency] = useState<number | null>(null);
 
-  const setBaseUrl = useCallback((newUrl: string) => {
-    saveBaseUrl(newUrl);
-    setBaseUrlState(newUrl);
-  }, []);
-
   const setActiveUsername = useCallback((username: string) => {
     const clean = username.trim();
     setActiveUsernameState(clean);
     localStorage.setItem('finflow_active_user', clean);
-  }, []);
-
-  const setSimulation = useCallback((enabled: boolean) => {
-    saveSimulationMode(enabled);
-    setSimulationState(enabled);
   }, []);
 
   const setIsMasked = useCallback((masked: boolean) => {
@@ -95,7 +73,7 @@ export const ApiConfigProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setHealthMessage(res.message || 'API is active and reachable');
       } else {
         setHealthStatus('disconnected');
-        setHealthMessage(res.message);
+        setHealthMessage(res.message || 'Backend server is not responding');
       }
     } catch (err: any) {
       setHealthStatus('disconnected');
@@ -106,7 +84,7 @@ export const ApiConfigProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   useEffect(() => {
     checkHealth();
-  }, [checkHealth, baseUrl, isSimulation]);
+  }, [checkHealth]);
 
   const refreshCurrentUser = useCallback(async () => {
     if (!activeUsername) return;
@@ -154,18 +132,10 @@ export const ApiConfigProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     localStorage.removeItem('finflow_logged_in');
   }, []);
 
-  const resetToDefaults = useCallback(() => {
-    setBaseUrl(DEFAULT_API_BASE_URL);
-    setActiveUsername('asha');
-    setSimulation(false);
-    setIsMasked(true);
-  }, [setBaseUrl, setActiveUsername, setSimulation, setIsMasked]);
-
   return (
     <ApiConfigContext.Provider
       value={{
         baseUrl,
-        setBaseUrl,
         activeUsername,
         setActiveUsername,
         currentUser,
@@ -173,8 +143,6 @@ export const ApiConfigProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         login,
         logout,
         refreshCurrentUser,
-        isSimulation,
-        setSimulation,
         isMasked,
         setIsMasked,
         toggleMasking,
@@ -182,7 +150,6 @@ export const ApiConfigProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         healthMessage,
         healthLatency,
         checkHealth,
-        resetToDefaults,
       }}
     >
       {children}

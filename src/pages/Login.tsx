@@ -18,7 +18,7 @@ import { useToast } from '../context/ToastContext';
 import { CreateUserModal } from '../components/accounts/CreateUserModal';
 
 export const Login: React.FC = () => {
-  const { login, activeUsername, isAuthenticated, logout, baseUrl, isSimulation, setSimulation } =
+  const { login, activeUsername, isAuthenticated, logout, baseUrl } =
     useApiConfig();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -184,18 +184,6 @@ export const Login: React.FC = () => {
                 <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <span>{error}</span>
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSimulation(true);
-                        handleQuickLogin('asha');
-                      }}
-                      className="text-xs font-semibold text-rose-700 dark:text-rose-300 underline"
-                    >
-                      Enable Demo Mode & Retry
-                    </button>
-                  </div>
                 </div>
               </div>
             )}
@@ -265,10 +253,10 @@ export const Login: React.FC = () => {
         <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-850 text-xs text-slate-500 text-center space-y-1">
           <div className="flex items-center justify-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
             <Server className="w-3.5 h-3.5" />
-            <span>Target Backend: {isSimulation ? 'In-Memory Simulator' : baseUrl}</span>
+            <span>Target Backend: {baseUrl}</span>
           </div>
           <p className="text-[11px]">
-            Configure API endpoint in{' '}
+            Server status and documentation in{' '}
             <Link to="/settings" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
               API Settings
             </Link>

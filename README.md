@@ -32,10 +32,9 @@ A modern, responsive financial web application built with **React**, **Vite**, *
   - Summary KPI cards for net cash flow, debit counts, and credit counts.
   - Protected trigger button for 30-day email reports (`GET /send/report/`) with confirmation dialog.
 - **Settings & API Diagnostics**:
-  - Configurable API Base URL (defaults to `VITE_API_BASE_URL` or `http://localhost:4000`).
-  - Quick presets: Direct Backend (`http://localhost:4000`), Reverse Proxy (`http://localhost:8000`), or Custom URL.
-  - In-browser demo simulator toggle: Allows full offline testing without needing a local Express server running.
+  - Connected to backend server `http://147.224.251.137:8001`.
   - Live API ping and latency measurement on `GET /`.
+  - Active user switcher and account masking controls.
   - Light and Dark theme modes with instant switching.
 
 ---
@@ -85,13 +84,8 @@ As noted in the API reference, the backend occasionally returns application erro
 Create a `.env` file in the root directory (based on `.env.example`):
 
 ```bash
-# Point to your local Express backend
-VITE_API_BASE_URL="http://localhost:4000"
-```
-
-If you are using the reverse proxy, set:
-```bash
-VITE_API_BASE_URL="http://localhost:8000"
+# Backend server configuration
+VITE_API_BASE_URL="http://147.224.251.137:8001"
 ```
 
 ### 2. Start Your Existing Express Backend

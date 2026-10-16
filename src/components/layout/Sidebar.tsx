@@ -33,7 +33,7 @@ const NAV_ITEMS = [
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { activeUsername, isSimulation, healthStatus, baseUrl } = useApiConfig();
+  const { activeUsername, healthStatus, baseUrl } = useApiConfig();
 
   return (
     <>
@@ -164,13 +164,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               />
             </div>
             <p className="text-[11px] text-slate-400 truncate" title={baseUrl}>
-              {isSimulation ? 'In-Memory Simulator' : baseUrl}
+              {baseUrl}
             </p>
-            {isSimulation && (
-              <span className="mt-1 text-[10px] text-blue-400 flex items-center gap-1">
-                <Sparkles className="w-3 h-3" /> Demo Mode Enabled
-              </span>
-            )}
           </div>
         </div>
       </aside>
